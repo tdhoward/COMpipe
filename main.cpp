@@ -181,7 +181,7 @@ int main(int argc, char **argv)
     while (1)
     {
         // check if we should be exiting the loop
-        if(GetKeyState('Q') < 0)  // Q key exits the loop
+        if(kbhit() && GetKeyState('Q') < 0)  // Q key exits the loop
         {
             printf("Quitting...");
             break;
