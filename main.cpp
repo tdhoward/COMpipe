@@ -51,11 +51,14 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
         printf("Usage:\n");
-        printf("  COMpipe -c <COM port name> -p <pipe name>\n");
-        printf("Example:\n");
+        printf("  COMpipe [-b <baud rate>] -c <COM port name> -p <pipe name>\n\n");
+        printf("Examples:\n");
         printf("  COMpipe -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n");
+        printf("  COMpipe -b 19200 -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n\n");
         printf("Notes:\n  1. COMpipe does not create a named pipe, it only uses an existing named pipe.\n");
-        printf("  2. COMpipe must be run as administrator.\n\n");
+        printf("  2. COMpipe must be run as administrator.\n");
+        printf("  3. The default baud rate is 9600.\n");
+        printf("      Options include: 4800, 9600, 14400, 19200, 38400, 57600, and 115200. \n\n");
         return 0;
     }
 
@@ -76,6 +79,10 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    std::string baud_rate = input.getCmdOption("-b");
+    if (baud_rate.empty())
+        baud_rate = "9600";
+    int baud = std::stoi(baud_rate);
 
     // attempt to open the COM port
     serialHandle = CreateFile(serial_port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -101,7 +108,7 @@ int main(int argc, char **argv)
         printf("Error getting serial port state! GLE=%lu\n", GetLastError());
         return -1;
     }
-    serialParams.BaudRate = CBR_9600;
+    serialParams.BaudRate = baud;
     serialParams.ByteSize = 8;
     serialParams.StopBits = ONESTOPBIT;
     serialParams.Parity = NOPARITY;
