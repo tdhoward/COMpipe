@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     int baud = std::stoi(baud_rate);
 
     // attempt to open the COM port
-    serialHandle = CreateFile(serial_port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    serialHandle = CreateFileA(serial_port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
     if(serialHandle==INVALID_HANDLE_VALUE)
     {
         if(GetLastError()==ERROR_FILE_NOT_FOUND)
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
     // Try to open a named pipe; wait for it, if necessary.
     while (1)
     {
-        hPipe = CreateFile(
+        hPipe = CreateFileA(
                     pipe_name.c_str(),   // pipe name
                     GENERIC_READ |  // read and write access
                     GENERIC_WRITE,
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         }
 
         // All pipe instances are busy, so wait for 20 seconds.
-        if ( ! WaitNamedPipe(pipe_name.c_str(), 20000))
+        if ( ! WaitNamedPipeA(pipe_name.c_str(), 20000))
         {
             printf("Could not open pipe: 20 second wait timed out.");
             return -1;
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
     while (1)
     {
         // check if we should be exiting the loop
-        if(kbhit() && GetKeyState('Q') < 0)  // Q key exits the loop
+        if(_kbhit() && GetKeyState('Q') < 0)  // Q key exits the loop
         {
             printf("Quitting...");
             break;
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
         */
     }
 
-    while(kbhit()) getch();  // clear the input buffer
+    while(_kbhit()) _getch();  // clear the input buffer
 
     CloseHandle(hPipe);
     CloseHandle(serialHandle);
