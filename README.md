@@ -1,9 +1,13 @@
 # COMpipe
 Links a serial COM port to a named pipe.  This command-line utility was developed to allow Hyper-V virtual machines to use the host machine's COM ports.  It currently runs in the console on Windows only, and has been tested on Windows 10 Pro.
 
-A compiled executable can be found in bin\Release.
+A compiled executable can be found in x64\Release.
 
-Feel free to modify the source code and use as desired.  It was compiled using MinGW32 and Code:Blocks IDE.  No additional libraries are needed.
+Feel free to modify the source code and use as desired.  It was compiled using Visual Studio 2022.  No additional libraries are needed.
+
+*Update*
+Version 0.2 (20-July-2023)
+Added automatic retries and exponential backoff for when a connection to a named pipe or serial port is temporarily lost.  This can happen when rebooting the virtual machine, for example.  Also, other miscellaneous updates.
 
 ```
 Usage:
