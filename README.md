@@ -1,5 +1,5 @@
 # COMpipe
-Links a serial COM port to a named pipe.  This command-line utility was developed to allow Hyper-V virtual machines to use the host machine's COM ports.  It currently runs in the console on Windows only, and has been tested on Windows 10 Pro.
+Links a serial COM port to a named pipe.  This command-line utility was developed to allow Hyper-V virtual machines to use the host machine's COM ports.  It currently runs in the console on Windows only, and has been tested on Windows 8 Pro, 10 Pro, and 11 Pro.  If you need to run this as a Windows service, you can use something like [NSSM](https://nssm.cc/), which has been used with COMpipe successfully.
 
 A compiled executable can be found in x64\Release.
 
