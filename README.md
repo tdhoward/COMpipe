@@ -20,4 +20,6 @@ Usage:
   2. COMpipe must be run as administrator.
   3. The default baud rate is 9600.
   Options include: 4800, 9600, 14400, 19200, 38400, 57600, and 115200.
+  4. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.
+  This is because the named pipe created by the VM does not support these signals.
 ```

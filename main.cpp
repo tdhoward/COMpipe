@@ -275,7 +275,9 @@ int main(int argc, char **argv)
         printf("Notes:\n  1. COMpipe does not create a named pipe, it only uses an existing named pipe.\n");
         printf("  2. COMpipe must be run as administrator.\n");
         printf("  3. The default baud rate is 9600.\n");
-        printf("      Options include: 4800, 9600, 14400, 19200, 38400, 57600, and 115200. \n\n");
+        printf("      Options typically include: 4800, 9600, 14400, 19200, 38400, 57600, and 115200. \n");
+        printf("  4. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.\n");
+        printf("      This is because the named pipe created by the VM does not support these signals.\n\n");
         return 0;
     }
 
