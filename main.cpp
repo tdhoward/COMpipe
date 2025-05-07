@@ -17,6 +17,11 @@ using namespace std;
 HANDLE hPipe = INVALID_HANDLE_VALUE;
 HANDLE serialHandle = INVALID_HANDLE_VALUE;
 
+string serial_port;
+int BaudRate = 9600;
+BYTE ByteSize = 8;           /* Number of bits/byte, 4-8        */
+BYTE Parity = NOPARITY;      /* 0-4=None,Odd,Even,Mark,Space    */
+BYTE StopBits = ONESTOPBIT;  /* 0,1,2 = 1, 1.5, 2               */
 
 
 void ClearKeyboardBuffer()
@@ -136,7 +141,7 @@ class InputParser{
 };
 
 
-void OpenSerialPort(const string serial_port, int baud)
+void OpenSerialPort()
 {
     char error[400];
     DWORD gle = 0;
@@ -151,6 +156,8 @@ void OpenSerialPort(const string serial_port, int baud)
             throw exception("COM port does not exist!");
         case ERROR_ACCESS_DENIED:
             throw exception("Access denied while trying to open COM port!");
+		case ERROR_PATH_NOT_FOUND:
+			throw exception("Path not found while trying to open COM port!");
         default:
             sprintf_s(error, "An error occurred! GLE=%lu", GetLastError());
             throw exception(error);
@@ -166,10 +173,10 @@ void OpenSerialPort(const string serial_port, int baud)
         sprintf_s(error,"Error getting serial port state! GLE=%lu", GetLastError());
         throw exception(error);
     }
-    serialParams.BaudRate = baud;
-    serialParams.ByteSize = 8;
-    serialParams.StopBits = ONESTOPBIT;
-    serialParams.Parity = NOPARITY;
+    serialParams.BaudRate = BaudRate;
+	serialParams.ByteSize = ByteSize;
+	serialParams.StopBits = StopBits;
+	serialParams.Parity = Parity;
     if (!SetCommState(serialHandle, &serialParams))
     {
         sprintf_s(error, "Error setting serial port state! GLE=%lu", GetLastError());
@@ -261,14 +268,14 @@ int main(int argc, char **argv)
     char error[400];
     DWORD gle = 0;
 
-    printf("COMpipe 0.2\n");
+    printf("COMpipe 0.3\n");
     printf("https://github.com/tdhoward/COMpipe\n\n");
 
     // Handle command line parameters
     if(argc < 2)
     {
         printf("Usage:\n");
-        printf("  COMpipe [-b <baud rate>] -c <COM port name> -p <pipe name>\n\n");
+        printf("  COMpipe [-b <baud rate>] [-d <data bits>] [-r <parity>] [-s <stop bits>] -c <COM port name> -p <pipe name>\n\n");
         printf("Examples:\n");
         printf("  COMpipe -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n");
         printf("  COMpipe -b 19200 -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n\n");
@@ -276,7 +283,12 @@ int main(int argc, char **argv)
         printf("  2. COMpipe must be run as administrator.\n");
         printf("  3. The default baud rate is 9600.\n");
         printf("      Options typically include: 4800, 9600, 14400, 19200, 38400, 57600, and 115200. \n");
-        printf("  4. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.\n");
+        printf("  4. The default number of data bits is 8. Allowable options are: 4-8\n");
+        printf("  5. The default parity is 0 (None).\n");
+		printf("      Options are: 0=None, 1=Odd, 2=Even, 3=Mark, 4=Space.\n");
+        printf("  6. The default stop bits value is 0 (1 stop bit).\n");
+        printf("      Options are: 0=1, 1=1.5, 2=2\n");
+        printf("  7. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.\n");
         printf("      This is because the named pipe created by the VM does not support these signals.\n\n");
         return 0;
     }
@@ -293,7 +305,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    const string &serial_port = input.getCmdOption("-c");
+    serial_port = input.getCmdOption("-c");
     if (serial_port.empty())
     {
         printf("Please include the name of the serial port.\n");
@@ -303,10 +315,59 @@ int main(int argc, char **argv)
     string baud_rate = input.getCmdOption("-b");
     if (baud_rate.empty())
         baud_rate = "9600";
-    int baud = stoi(baud_rate);
-
     try {
-        RetryWithBackoff(OpenSerialPort, 5, 2000, serial_port, baud);
+        BaudRate = stoi(baud_rate);
+    }
+    catch (exception) {
+        cerr << "Invalid baud rate." << std::endl;
+        Shutdown(-1);
+    }
+
+    string data_bits = input.getCmdOption("-d");
+    try {
+		if (!data_bits.empty())
+			ByteSize = stoi(data_bits);
+		if (ByteSize < 4 || ByteSize > 8) {
+            cerr << "Invalid byte size." << std::endl;
+            Shutdown(-1);
+        }
+    }
+    catch (exception) {
+        cerr << "Invalid byte size." << std::endl;
+        Shutdown(-1);
+    }
+
+    string parity = input.getCmdOption("-r");
+    try {
+        if (!parity.empty())
+			Parity = stoi(parity);
+		if (Parity < 0 || Parity > 4) {
+			cerr << "Invalid parity." << std::endl;
+			Shutdown(-1);
+		}
+	}
+	catch (exception) {
+		cerr << "Invalid parity." << std::endl;
+		Shutdown(-1);
+    }
+
+	string stop_bits = input.getCmdOption("-s");
+	try {
+		if (!stop_bits.empty())
+			StopBits = stoi(stop_bits);
+		if (StopBits < 0 || StopBits > 2) {
+			cerr << "Invalid stop bits." << std::endl;
+			Shutdown(-1);
+		}
+	}
+	catch (exception) {
+		cerr << "Invalid stop bits." << std::endl;
+		Shutdown(-1);
+	}
+
+	// open the serial port
+    try {
+        RetryWithBackoff(OpenSerialPort, 5, 2000);
     }
     catch (const exception& e) {
         cerr << "Caught exception after maximum retries: " << e.what() << std::endl;
@@ -338,7 +399,7 @@ int main(int argc, char **argv)
             try {
                 CloseHandle(serialHandle);
                 Sleep(2000);
-                RetryWithBackoff(OpenSerialPort, -1, 5000, serial_port, baud);  // retry every 5 seconds, forever
+                RetryWithBackoff(OpenSerialPort, -1, 5000);  // retry every 5 seconds, forever
                 continue;  // restart the while loop
             }
             catch (const exception& e) {
