@@ -27,7 +27,7 @@ Notes:
       This is because the named pipe created by the VM does not support these signals.
 ```
 
-*Changelog*
+## Changelog
 Version 0.3 (07-May-2025)
 Added command-line options for data bits, parity, and stop bits.
 
