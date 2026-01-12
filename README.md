@@ -7,7 +7,7 @@ Feel free to modify the source code and use as desired.  It was compiled using V
 
 ```
 Usage:
-  COMpipe [-b <baud rate>] [-d <data bits>] [-r <parity>] [-s <stop bits>] -c <COM port name> -p <pipe name>
+  COMpipe [-b <baud rate>] [-d <data bits>] [-r <parity>] [-s <stop bits>] [-f] -c <COM port name> -p <pipe name>
 
 Examples:
   COMpipe -c \\.\COM8 -p \\.\pipe\MyLittlePipe
@@ -25,6 +25,7 @@ Notes:
       Options are: 0=1, 1=1.5, 2=2
   7. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.
       This is because the named pipe created by the VM does not support these signals.
+  8. -f is to force stdout flushing. This is useful when piping output to another process.
 ```
 
 ## Changelog
