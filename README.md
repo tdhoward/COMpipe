@@ -29,9 +29,12 @@ Notes:
 ```
 
 ## Changelog
+Version 0.4 (27-Jan-2026)
+Added command-line option for forcing stdout flushing, by @claybrooks
+
 Version 0.3 (07-May-2025)
 Added command-line options for data bits, parity, and stop bits.
 
-Version 0.2 (20-July-2023)
+Version 0.2 (20-Jul-2023)
 Added automatic retries and exponential backoff for when a connection to a named pipe or serial port is temporarily lost.  This can happen when rebooting the virtual machine, for example.  Also, other miscellaneous updates.
 

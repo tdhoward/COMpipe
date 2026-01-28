@@ -277,7 +277,7 @@ int main(int argc, char **argv)
         setvbuf(stdout, nullptr, _IONBF, 0);
     }
 
-    printf("COMpipe 0.3\n");
+    printf("COMpipe 0.4\n");
     printf("https://github.com/tdhoward/COMpipe\n\n");
 
     // Handle command line parameters
