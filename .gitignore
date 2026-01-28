@@ -14,7 +14,7 @@
 *.a
 
 # Visual Studio Files
-x64/Debug/
+x64/
 *.suo
 *.csproj.user
 *.vcxproj.user
