@@ -268,6 +268,15 @@ int main(int argc, char **argv)
     char error[400];
     DWORD gle = 0;
 
+    // review command line parameters for pipe and COM port names
+    InputParser input(argc, argv);
+
+    bool force_flush = input.cmdOptionExists("-f");
+    if (force_flush)
+    {
+        setvbuf(stdout, nullptr, _IONBF, 0);
+    }
+
     printf("COMpipe 0.3\n");
     printf("https://github.com/tdhoward/COMpipe\n\n");
 
@@ -275,7 +284,7 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
         printf("Usage:\n");
-        printf("  COMpipe [-b <baud rate>] [-d <data bits>] [-r <parity>] [-s <stop bits>] -c <COM port name> -p <pipe name>\n\n");
+        printf("  COMpipe [-b <baud rate>] [-d <data bits>] [-r <parity>] [-s <stop bits>] [-f] -c <COM port name> -p <pipe name>\n\n");
         printf("Examples:\n");
         printf("  COMpipe -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n");
         printf("  COMpipe -b 19200 -c \\\\.\\COM8 -p \\\\.\\pipe\\MyLittlePipe\n\n");
@@ -290,13 +299,11 @@ int main(int argc, char **argv)
         printf("      Options are: 0=1, 1=1.5, 2=2\n");
         printf("  7. Hardware signals like RTS/CTS, DTR/DSR, DCD, and RI are not supported.\n");
         printf("      This is because the named pipe created by the VM does not support these signals.\n\n");
+        printf("  8. -f is to force stdout flushing. This is useful when piping output to another process.");
         return 0;
     }
 
     printf("Press Q to quit.\n");
-
-    // review command line parameters for pipe and COM port names
-    InputParser input(argc, argv);
 
     const string &pipe_name = input.getCmdOption("-p");
     if (pipe_name.empty())
